@@ -50,7 +50,7 @@ util = False
 
 # register widget cache for keeping memory down timeout to forever to cache
 # the data
-Cache.register('electrum_ltc_widgets', timeout=0)
+Cache.register('vialectrum_widgets', timeout=0)
 
 from kivy.uix.screenmanager import Screen
 from kivy.uix.tabbedpanel import TabbedPanel
@@ -641,8 +641,8 @@ class ElectrumWindow(App):
                          module='vialectrum.gui.kivy.uix.qrcodewidget')
 
         # preload widgets. Remove this if you want to load the widgets on demand
-        #Cache.append('electrum_ltc_widgets', 'AnimatedPopup', Factory.AnimatedPopup())
-        #Cache.append('electrum_ltc_widgets', 'QRCodeWidget', Factory.QRCodeWidget())
+        #Cache.append('vialectrum_widgets', 'AnimatedPopup', Factory.AnimatedPopup())
+        #Cache.append('vialectrum_widgets', 'QRCodeWidget', Factory.QRCodeWidget())
 
         # load and focus the ui
         self.root.manager = self.root.ids['manager']
