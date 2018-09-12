@@ -37,7 +37,7 @@ except ImportError:
     from .scrypt import scrypt_1024_1_1_80 as getPoWHash
 
 
-MAX_TARGET = 0x00000FFFFF000000000000000000000000000000000000000000000000000000
+MAX_TARGET = 0x000001FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 
 
 class MissingHeader(Exception):
@@ -167,14 +167,17 @@ class Blockchain(util.PrintError):
         self._size = os.path.getsize(p)//80 if os.path.exists(p) else 0
 
     def verify_header(self, header: dict, prev_hash: str, target: int, expected_header_hash: str=None) -> None:
-        _hash = hash_header(header)
-        _powhash = pow_hash_header(header)
-        if expected_header_hash and expected_header_hash != _hash:
-            raise Exception("hash mismatches with expected: {} vs {}".format(expected_header_hash, _hash))
+        #_hash = hash_header(header)
+        #_powhash = pow_hash_header(header
+        #if expected_header_hash and expected_header_hash != _hash:
+        #    raise Exception("hash mismatches with expected: {} vs {}".format(expected_header_hash, _hash))
         if prev_hash != header.get('prev_block_hash'):
             raise Exception("prev hash mismatch: %s vs %s" % (prev_hash, header.get('prev_block_hash')))
         if constants.net.TESTNET:
             return
+        if header.get('version') & 0x100 != 0: # Viacoin auxpow
+            return
+        _powhash = pow_hash_header(header)
         bits = self.target_to_bits(target)
         if bits != header.get('bits'):
             raise Exception("bits mismatch: %s vs %s" % (bits, header.get('bits')))
