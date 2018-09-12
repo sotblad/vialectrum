@@ -4,21 +4,26 @@
 build/
 dist/
 *.egg/
-/electrum.py
 contrib/pyinstaller/
+Electrum_LTC.egg-info/
 Vialectrum.egg-info/
-gui/qt/icons_rc.py
 locale/
 .devlocaltmp/
 *_trial_temp
 packages
 env/
-.tox/
 .buildozer/
 bin/
 /app.fil
+.idea
 
-# tox files
+# icons
+vialectrum/gui/qt/icons_rc.py
+vialectrum/gui/kivy/theming/light-0.png
+vialectrum/gui/kivy/theming/light.atlas
+
+# tests/tox
+.tox/
 .cache/
 .coverage
 seed
@@ -27,3 +32,4 @@ seed2
 contrib/build-wine/tmp/*
 
 .idea
+.pytest_cache

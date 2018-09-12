@@ -1,7 +1,7 @@
 #!/bin/bash
 
 NAME_ROOT=vialectrum
-PYTHON_VERSION=3.5.4
+PYTHON_VERSION=3.6.6
 
 # These settings probably don't need any change
 export WINEPREFIX=/opt/wine64
@@ -19,29 +19,13 @@ set -e
 mkdir -p tmp
 cd tmp
 
-if [ -d ./vialectrum ]; then
-  rm ./vialectrum -rf
-fi
-
-git clone https://github.com/vialectrum/vialectrum -b master
-
-pushd vialectrum
-if [ ! -z "$1" ]; then
-    # a commit/tag/branch was specified
-    if ! git cat-file -e "$1" 2> /dev/null
-    then  # can't find target
-        # try pull requests
-        git config --local --add remote.origin.fetch '+refs/pull/*/merge:refs/remotes/origin/pr/*'
-        git fetch --all
-    fi
-    git checkout $1
-fi
+pushd $WINEPREFIX/drive_c/vialectrum
 
 # Load electrum-icons and electrum-locale for this release
 git submodule init
 git submodule update
 
-VERSION=`git describe --tags --dirty`
+VERSION=`git describe --tags --dirty --always`
 echo "Last commit: $VERSION"
 
 pushd ./contrib/deterministic-build/vialectrum-locale
@@ -50,7 +34,7 @@ if ! which msgfmt > /dev/null 2>&1; then
     exit 1
 fi
 for i in ./locale/*; do
-    dir=$i/LC_MESSAGES
+    dir=$WINEPREFIX/drive_c/vialectrum/vialectrum/locale/$i/LC_MESSAGES
     mkdir -p $dir
     msgfmt --output-file=$dir/electrum.mo $i/electrum.po || true
 done
@@ -59,11 +43,8 @@ popd
 find -exec touch -d '2000-11-11T11:11:11+00:00' {} +
 popd
 
-rm -rf $WINEPREFIX/drive_c/vialectrum
-cp -r vialectrum $WINEPREFIX/drive_c/vialectrum
-cp vialectrum/LICENCE .
-cp -r ./vialectrum/contrib/deterministic-build/vialectrum-locale/locale $WINEPREFIX/drive_c/vialectrum/lib/
-cp ./vialectrum/contrib/deterministic-build/vialectrum-icons/icons_rc.py $WINEPREFIX/drive_c/vialectrum/gui/qt/
+cp $WINEPREFIX/drive_c/vialectrum/LICENCE .
+cp $WINEPREFIX/drive_c/vialectrum/contrib/deterministic-build/vialectrum-icons/icons_rc.py $WINEPREFIX/drive_c/vialectrum/vialectrum/gui/qt/
 
 # Install frozen dependencies
 $PYTHON -m pip install -r ../../deterministic-build/requirements.txt

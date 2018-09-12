@@ -10,7 +10,7 @@ for i, x in enumerate(sys.argv):
 else:
     raise Exception('no name')
 
-PYTHON_VERSION = '3.5.4'
+PYTHON_VERSION = '3.6.6'
 PYHOME = 'c:/python' + PYTHON_VERSION
 
 home = 'C:\\vialectrum\\'
@@ -18,9 +18,11 @@ home = 'C:\\vialectrum\\'
 # see https://github.com/pyinstaller/pyinstaller/issues/2005
 hiddenimports = []
 hiddenimports += collect_submodules('trezorlib')
+hiddenimports += collect_submodules('safetlib')
 hiddenimports += collect_submodules('btchip')
 hiddenimports += collect_submodules('keepkeylib')
 hiddenimports += collect_submodules('websocket')
+hiddenimports += collect_submodules('ckcc')
 hiddenimports += ['_scrypt']
 
 # Add libusb binary
@@ -32,33 +34,38 @@ binaries += [b for b in collect_dynamic_libs('PyQt5') if 'qwindowsvista' in b[0]
 binaries += [('C:/tmp/libsecp256k1.dll', '.')]
 
 datas = [
-    (home+'lib/*.json', 'vialectrum'),
-    (home+'lib/wordlist/english.txt', 'vialectrum/wordlist'),
-    (home+'lib/locale', 'vialectrum/locale'),
-    (home+'plugins', 'vialectrum_plugins'),
-    ('C:\\Program Files (x86)\\ZBar\\bin\\', '.')
+    (home+'vialectrum/*.json', 'vialectrum'),
+    (home+'vialectrum/wordlist/english.txt', 'vialectrum/wordlist'),
+    (home+'vialectrum/locale', 'vialectrum/locale'),
+    (home+'vialectrum/plugins', 'vialectrum/plugins'),
+    ('C:\\Program Files (x86)\\ZBar\\bin\\', '.'),
 ]
 datas += collect_data_files('trezorlib')
+datas += collect_data_files('safetlib')
 datas += collect_data_files('btchip')
 datas += collect_data_files('keepkeylib')
+datas += collect_data_files('ckcc')
 
 # We don't put these files in to actually include them in the script but to make the Analysis method scan them for imports
-a = Analysis([home+'vialectrum',
-              home+'gui/qt/main_window.py',
-              home+'gui/text.py',
-              home+'lib/util.py',
-              home+'lib/wallet.py',
-              home+'lib/simple_config.py',
-              home+'lib/bitcoin.py',
-              home+'lib/blockchain.py',
-              home+'lib/dnssec.py',
-              home+'lib/commands.py',
-              home+'plugins/cosigner_pool/qt.py',
-              home+'plugins/email_requests/qt.py',
-              home+'plugins/trezor/client.py',
-              home+'plugins/trezor/qt.py',
-              home+'plugins/keepkey/qt.py',
-              home+'plugins/ledger/qt.py',
+a = Analysis([home+'run_electrum',
+              home+'vialectrum/gui/qt/main_window.py',
+              home+'vialectrum/gui/text.py',
+              home+'vialectrum/util.py',
+              home+'vialectrum/wallet.py',
+              home+'vialectrum/simple_config.py',
+              home+'vialectrum/bitcoin.py',
+              home+'vialectrum/blockchain.py',
+              home+'vialectrum/dnssec.py',
+              home+'vialectrum/commands.py',
+              home+'vialectrum/plugins/cosigner_pool/qt.py',
+              home+'vialectrum/plugins/email_requests/qt.py',
+              home+'vialectrum/plugins/trezor/client.py',
+              home+'vialectrum/plugins/trezor/qt.py',
+              home+'vialectrum/plugins/safe_t/client.py',
+              home+'vialectrum/plugins/safe_t/qt.py',
+              home+'vialectrum/plugins/keepkey/qt.py',
+              home+'vialectrum/plugins/ledger/qt.py',
+              home+'vialectrum/plugins/coldcard/qt.py',
               #home+'packages/requests/utils.py'
               ],
              binaries=binaries,
@@ -70,7 +77,7 @@ a = Analysis([home+'vialectrum',
 
 # http://stackoverflow.com/questions/19055089/pyinstaller-onefile-warning-pyconfig-h-when-importing-scipy-or-scipy-signal
 for d in a.datas:
-    if 'pyconfig' in d[0]: 
+    if 'pyconfig' in d[0]:
         a.datas.remove(d)
         break
 
@@ -87,7 +94,7 @@ exe_standalone = EXE(
     pyz,
     a.scripts,
     a.binaries,
-    a.datas, 
+    a.datas,
     name=os.path.join('build\\pyi.win32\\vialectrum', cmdline_name + ".exe"),
     debug=False,
     strip=None,

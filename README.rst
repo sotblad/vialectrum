@@ -29,7 +29,7 @@ Vialectrum from its root directory, without installing it on your
 system; all the python dependencies are included in the 'packages'
 directory. To run Vialectrum from its root directory, just do::
 
-    ./vialectrum
+    ./run_electrum
 
 You can also install Vialectrum on your system, by running this command::
 
@@ -66,12 +66,12 @@ Render the SVG icons to PNGs (optional)::
 Compile the icons file for Qt::
 
     sudo apt-get install pyqt5-dev-tools
-    pyrcc5 icons.qrc -o gui/qt/icons_rc.py
+    pyrcc5 icons.qrc -o vialectrum/gui/qt/icons_rc.py
 
 Compile the protobuf description file::
 
     sudo apt-get install protobuf-compiler
-    protoc --proto_path=lib/ --python_out=lib/ lib/paymentrequest.proto
+    protoc --proto_path=vialectrum --python_out=vialectrum vialectrum/paymentrequest.proto
 
 Create translations (optional)::
 
@@ -105,4 +105,4 @@ See `contrib/build-wine/`.
 Android
 -------
 
-See `gui/kivy/Readme.txt` file.
+See `vialectrum/gui/kivy/Readme.md` file.

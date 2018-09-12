@@ -1,8 +1,9 @@
-sudo: false
+sudo: true
+dist: xenial
 language: python
 python:
-    - 3.5
     - 3.6
+    - 3.7
 addons:
   apt:
     sources:
@@ -33,7 +34,7 @@ jobs:
       install:
         - sudo docker build  --no-cache -t vialectrum-wine-builder-img ./contrib/build-wine/docker/
       script:
-        - sudo docker run --name vialectrum-wine-builder-cont -v $PWD:/opt/vialectrum --rm --workdir /opt/vialectrum/contrib/build-wine vialectrum-wine-builder-img ./build.sh $TRAVIS_COMMIT
+        - sudo docker run --name vialectrum-wine-builder-cont -v $PWD:/opt/wine64/drive_c/vialectrum --rm --workdir /opt/wine64/drive_c/vialectrum/contrib/build-wine vialectrum-wine-builder-img ./build.sh
       after_success: true
     - os: osx
       language: c

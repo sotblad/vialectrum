@@ -2,12 +2,15 @@
 
 # python setup.py sdist --format=zip,gztar
 
-from setuptools import setup
 import os
 import sys
 import platform
 import imp
 import argparse
+import subprocess
+
+from setuptools import setup, find_packages
+from setuptools.command.install import install
 
 with open('contrib/requirements/requirements.txt') as f:
     requirements = f.read().splitlines()
@@ -15,10 +18,10 @@ with open('contrib/requirements/requirements.txt') as f:
 with open('contrib/requirements/requirements-hw.txt') as f:
     requirements_hw = f.read().splitlines()
 
-version = imp.load_source('version', 'lib/version.py')
+version = imp.load_source('version', 'vialectrum/version.py')
 
-if sys.version_info[:3] < (3, 4, 0):
-    sys.exit("Error: Electrum requires Python version >= 3.4.0...")
+if sys.version_info[:3] < (3, 6, 0):
+    sys.exit("Error: Electrum requires Python version >= 3.6.0...")
 
 data_files = []
 
@@ -43,37 +46,42 @@ if platform.system() in ['Linux', 'FreeBSD', 'DragonFly']:
 extras_require = {
     'hardware': requirements_hw,
     'fast': ['pycryptodomex', 'scrypt>=0.6.0'],
-    ':python_version < "3.5"': ['typing>=3.0.0'],
+    'gui': ['pyqt5'],
 }
-extras_require['full'] = extras_require['hardware'] + extras_require['fast']
+extras_require['full'] = [pkg for sublist in list(extras_require.values()) for pkg in sublist]
+
+
+class CustomInstallCommand(install):
+    def run(self):
+        install.run(self)
+        # potentially build Qt icons file
+        try:
+            import PyQt5
+        except ImportError:
+            pass
+        else:
+            try:
+                path = os.path.join(self.install_lib, "vialectrum/gui/qt/icons_rc.py")
+                if not os.path.exists(path):
+                    subprocess.call(["pyrcc5", "icons.qrc", "-o", path])
+            except Exception as e:
+                print('Warning: building icons file failed with {}'.format(e))
 
 
 setup(
     name="Vialectrum",
     version=version.ELECTRUM_VERSION,
+    python_requires='>=3.6',
     install_requires=requirements,
     extras_require=extras_require,
     packages=[
         'vialectrum',
-        'vialectrum_gui',
-        'vialectrum_gui.qt',
-        'vialectrum_plugins',
-        'vialectrum_plugins.audio_modem',
-        'vialectrum_plugins.cosigner_pool',
-        'vialectrum_plugins.email_requests',
-        'vialectrum_plugins.hw_wallet',
-        'vialectrum_plugins.keepkey',
-        'vialectrum_plugins.labels',
-        'vialectrum_plugins.ledger',
-        'vialectrum_plugins.revealer',
-        'vialectrum_plugins.trezor',
-        'vialectrum_plugins.digitalbitbox',
-        'vialectrum_plugins.virtualkeyboard',
-    ],
+        'vialectrum.gui',
+        'vialectrum.gui.qt',
+        'vialectrum.plugins',
+    ] + [('vialectrum.plugins.'+pkg) for pkg in find_packages('vialectrum/plugins')],
     package_dir={
-        'vialectrum': 'lib',
-        'vialectrum_gui': 'gui',
-        'vialectrum_plugins': 'plugins',
+        'vialectrum': 'vialectrum'
     },
     package_data={
         '': ['*.txt', '*.json', '*.ttf', '*.otf'],
@@ -82,12 +90,15 @@ setup(
             'locale/*/LC_MESSAGES/electrum.mo',
         ],
     },
-    scripts=['vialectrum'],
+    scripts=['vialectrum/vialectrum'],
     data_files=data_files,
     description="Lightweight Viacoin Wallet",
     author="Thomas Voegtlin",
     author_email="thomasv@electrum.org",
     license="MIT Licence",
-    url="http://vialectrum.org",
-    long_description="""Lightweight Viacoin Wallet"""
+    url="https://vialectrum.org",
+    long_description="""Lightweight Viacoin Wallet""",
+    cmdclass={
+        'install': CustomInstallCommand,
+    },
 )

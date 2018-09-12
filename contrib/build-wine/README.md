@@ -2,7 +2,8 @@ Windows Binary Builds
 =====================
 
 These scripts can be used for cross-compilation of Windows Vialectrum executables from Linux/Wine.
-Produced binaries are deterministic, so you should be able to generate binaries that match the official releases. 
+
+For reproducible builds, see the `docker` folder.
 
 
 Usage:
@@ -34,10 +35,6 @@ The binaries are also built by Travis CI, so if you are having problems,
 2. Make sure `/opt` is writable by the current user.
 3. Run `build.sh`.
 4. The generated binaries are in `./dist`.
-
-
-Code Signing
-============
 
 Vialectrum Windows builds are signed with a Microsoft Authenticode™ code signing
 certificate in addition to the GPG-based signatures.
@@ -80,3 +77,4 @@ This procedure removes the differences between the signed and unsigned binary:
    of 8.
 
 The script `unsign.sh` performs these steps.
+=======
